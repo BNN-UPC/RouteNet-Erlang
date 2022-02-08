@@ -180,7 +180,7 @@ class LinkDivModel(tf.keras.Model):
         real_scale = scale * scale_std + scale_mean
 
         real_cap = capacity * bandwidth_std + bandwidth_mean
-        #real_cap = real_cap * real_scale
+        real_cap = real_cap * real_scale
 
         ids = tf.stack([path_ids, sequence_path], axis=1)
         max_len = tf.reduce_max(sequence_path) + 1
