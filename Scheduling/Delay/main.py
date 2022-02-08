@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.insert(1, '../../data/')
+sys.path.insert(1, '../')
 
 from read_dataset import input_fn
 from model import GNN_Model
@@ -36,14 +36,12 @@ params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
 params.read('config.ini')
 
-# ds_train = load_snapshot(TRAINING_SIZES, TRAINING_INTESITIES, mode='training', buffer_size=5000)
-ds_train = input_fn('../../data/gnnet_data_set_training', label='AvgDelay', shuffle=True)
+ds_train = input_fn('../../data/scheduling/train', label='delay', shuffle=True)
 ds_train = ds_train.map(lambda x, y: transformation(x, y))
 ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 ds_train = ds_train.repeat()
 
-# ds_test = load_snapshot(TEST_SIZES, TEST_INTESITIES, mode='validation')
-ds_test = input_fn('../../data/gnnet_data_set_evaluation_delays', label='AvgDelay', shuffle=False)
+ds_test = input_fn('../../data/scheduling/test', label='delay', shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 

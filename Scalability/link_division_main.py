@@ -10,17 +10,6 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-TRAINING_SIZES = list(range(10, 51, 5))
-TRAINING_INTESITIES = list(range(0, 1))
-
-TEST_SIZES = [250]
-TEST_INTESITIES = list(range(0, 1))
-
-def denorm_MAPE(y_true, y_pred):
-    denorm_y_true = tf.math.exp(y_true)
-    denorm_y_pred = tf.math.exp(y_pred)
-    return tf.abs((denorm_y_pred - denorm_y_true) / denorm_y_true) * 100
-
 def transformation(x, y):
     traffic_mean = 666.4519976306121
     traffic_std = 418.79412331425846
@@ -39,14 +28,7 @@ def transformation(x, y):
 
     x["scale"] = (x["scale"] - scale_mean) / scale_std
 
-    return x, y #tf.math.log(y)
-
-
-def denorm_MAPE(y_true, y_pred):
-    denorm_y_true = tf.math.exp(y_true)
-    denorm_y_pred = tf.math.exp(y_pred)
-    return tf.abs((denorm_y_pred - denorm_y_true) / denorm_y_true) * 100
-
+    return x, y
 
 params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
@@ -54,14 +36,14 @@ params.read('config.ini')
 
 min_scale = 1
 max_scale = 20
-ds_train = input_fn('./data/train/', min_scale=min_scale, max_scale=max_scale, samples_per_sample=1, shuffle=True)
+ds_train = input_fn('../data/scalability/train/', min_scale=min_scale, max_scale=max_scale, samples_per_sample=1,
+                    shuffle=True)
 ds_train = ds_train.map(lambda x, y: transformation(x, y))
 ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 ds_train = ds_train.repeat()
 ds_train = ds_train.shuffle(1000)
 
-# ds_test = load_snapshot(TEST_SIZES, TEST_INTESITIES, mode='validation')
-ds_test = input_fn('./data/validation', min_scale=10, max_scale=11, shuffle=False)
+ds_test = input_fn('../data/scalability/test', min_scale=10, max_scale=11, shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
@@ -74,8 +56,7 @@ loss_object = tf.keras.losses.MeanAbsolutePercentageError()
 
 model.compile(loss=loss_object,
               optimizer=optimizer,
-              run_eagerly=False,
-              metrics=['MAPE'])
+              run_eagerly=False)
 
 ckpt_dir = params['DIRECTORIES']['logs'] + '/delay'
 latest = tf.train.latest_checkpoint(ckpt_dir)
@@ -104,8 +85,3 @@ model.fit(ds_train,
           callbacks=[cp_callback],
           batch_size=32,
           use_multiprocessing=True)
-
-best = tf.train.latest_checkpoint(ckpt_dir)
-model.load_weights(best)
-
-model.evaluate(ds_test)

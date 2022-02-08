@@ -13,7 +13,6 @@
 
 import numpy as np
 import tensorflow as tf
-import random
 import networkx as nx
 from datanetAPI import DatanetAPI
 
