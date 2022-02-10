@@ -33,7 +33,7 @@ class LinkDivModel(tf.keras.Model):
         self.masking = tf.keras.layers.Masking()
 
         self.link_embedding = tf.keras.Sequential([
-            tf.keras.layers.Input(shape=1),
+            tf.keras.layers.Input(shape=2),
             tf.keras.layers.Dense(int(int(self.config['HYPERPARAMETERS']['link_state_dim']) / 2),
                                   activation=tf.keras.activations.relu),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['link_state_dim']),
@@ -71,7 +71,7 @@ class LinkDivModel(tf.keras.Model):
                                   activation=tf.keras.activations.relu),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.keras.activations.relu),
-            tf.keras.layers.Dense(output_units)
+            tf.keras.layers.Dense(output_units, activation=tf.keras.activations.sigmoid)
         ])
 
     @tf.function
@@ -106,8 +106,11 @@ class LinkDivModel(tf.keras.Model):
         ], axis=0)
 
         link_state = tf.concat([
-            tf.ones(link_shape)
+            capacity,
+            scale
         ], axis=1)
+
+        link_state = self.link_embedding(link_state)
 
         # Initialize the initial hidden state for paths
         path_state = tf.concat([
@@ -172,14 +175,8 @@ class LinkDivModel(tf.keras.Model):
         occupancy = self.readout(link_state)
 
         tf.print("[real_occupancy, occupancy]")
-        p = tf.concat([real_occupancy, tf.math.exp(occupancy)], axis=1)
+        p = tf.concat([real_occupancy, occupancy], axis=1)
         tf.print(p)
-
-        return occupancy
-
-        """tf.print(real_occupancy, summarize=-1)
-        tf.print("occupancy")
-        tf.print(tf.math.log(occupancy), summarize=-1)"""
 
         occupancy_gather = tf.gather(occupancy, link_to_path)
         occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
@@ -196,10 +193,23 @@ class LinkDivModel(tf.keras.Model):
 
         capacity_gather = tf.gather(real_cap, link_to_path)
         capacity = tf.scatter_nd(ids, capacity_gather, shape)
-        capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
+        #capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
 
         # Compute the delay given the queue occupancy and link capacities
-        r = tf.math.reduce_sum((occupancy * 32 * 1000) / capacity + 1000 / capacity, axis=1)
-        """tf.print("capacity")
-        tf.print(capacity)"""
-        return r
+        queueing_delay = (occupancy * 32 * 1000) / capacity
+        """tf.print("queueing_delay0")
+        tf.print(queueing_delay)"""
+        queueing_delay = tf.where(tf.math.is_nan(queueing_delay), tf.zeros_like(queueing_delay), queueing_delay)
+        """tf.print("queueing_delay1")
+        tf.print(queueing_delay)"""
+        queueing_delay = tf.math.reduce_sum(queueing_delay, axis=1)
+
+
+        trans_delay = (occupancy * 32 * 1000) / capacity
+        """tf.print("trans_delay0")
+        tf.print(trans_delay)"""
+        trans_delay = tf.where(tf.math.is_nan(trans_delay), tf.zeros_like(trans_delay), trans_delay)
+        """tf.print("trans_delay1")
+        tf.print(trans_delay)"""
+        trans_delay = tf.math.reduce_sum(trans_delay, axis=1)
+        return queueing_delay+trans_delay

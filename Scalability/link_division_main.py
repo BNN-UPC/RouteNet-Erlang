@@ -28,7 +28,7 @@ def transformation(x, y):
 
     x["scale"] = (x["scale"] - scale_mean) / scale_std
 
-    return x, tf.math.log(y)
+    return x, y
 
 params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
@@ -51,8 +51,11 @@ optimizer = tf.keras.optimizers.Adam()
 
 model = LinkDivModel(params)
 
-#loss_object = tf.keras.losses.MeanAbsolutePercentageError()
-def denorm_MAPE(y_true, y_pred):
+loss_object = tf.keras.losses.MeanAbsolutePercentageError()
+model.compile(loss=loss_object,
+              optimizer=optimizer,
+              run_eagerly=False)
+"""def denorm_MAPE(y_true, y_pred):
     denorm_y_true = tf.math.exp(y_true)
     denorm_y_pred = tf.math.exp(y_pred)
     return tf.abs((denorm_y_pred - denorm_y_true) / denorm_y_true) * 100
@@ -61,7 +64,7 @@ loss_object = tf.keras.losses.MeanSquaredError()
 model.compile(loss=loss_object,
               optimizer=optimizer,
               run_eagerly=False,
-              metrics=denorm_MAPE)
+              metrics=denorm_MAPE)"""
 
 ckpt_dir = 'ckpt_dir'
 latest = tf.train.latest_checkpoint(ckpt_dir)
