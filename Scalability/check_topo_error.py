@@ -1,5 +1,5 @@
 import sys
-
+import re
 sys.path.insert(1, "./code")
 from link_division_model import LinkDivModel
 import configparser
