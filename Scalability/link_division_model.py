@@ -170,13 +170,15 @@ class LinkDivModel(tf.keras.Model):
 
         # Call the readout ANN
         occupancy = self.readout(link_state)
-        occupancy += 1
         occupancy_gather = tf.gather(occupancy, link_to_path)
         occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
-        """tf.print("occupancy")
-        tf.print(occupancy)"""
 
-        occupancy = (occupancy*32)*1000
+        """tf.print("occupancy0")
+        tf.print((occupancy*32)*1000)"""
+        occupancy = (occupancy*32)*1000+1000
+        occupancy = tf.where(tf.equal(occupancy, 1000), tf.zeros_like(occupancy), occupancy)
+        """tf.print("occupancy1")
+        tf.print(occupancy)"""
 
         # Denormalize bandwidth and scale features
         bandwidth_mean = 21166.35

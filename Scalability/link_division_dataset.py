@@ -30,7 +30,7 @@ def generator(data_dir, min_scale, max_scale, samples_per_sample=1, shuffle=Fals
     for sample in it:
         for _ in range(samples_per_sample):
             num_samples += 1
-            #print(num_samples)
+            # print(num_samples)
             G_copy = sample.get_topology_object().copy()
             T = sample.get_traffic_matrix()
             R = sample.get_routing_matrix()
@@ -66,10 +66,10 @@ def network_to_hypergraph(network_graph, routing_matrix, traffic_matrix, perform
                 if G.has_edge(src, dst):
                     scale = np.random.randint(min_scale, max_scale)
                     D_G.add_node('l_{}_{}'.format(src, dst),
-                                 capacity= G.edges[src, dst]['bandwidth'] / scale,
-                                 scale= scale,
-                                 occupancy=(P[src][dst]['qosQueuesStats'][0]['avgPortOccupancy']-1) /
-                                            G.nodes[src]['queueSizes'],
+                                 capacity=G.edges[src, dst]['bandwidth'] / scale,
+                                 scale=scale,
+                                 occupancy=(P[src][dst]['qosQueuesStats'][0]['avgPortOccupancy'] - 1) /
+                                           G.nodes[src]['queueSizes'],
                                  queue_size=int(G.nodes[src]['queueSizes']))
 
                 for f_id in range(len(T[src, dst]['Flows'])):
@@ -138,8 +138,8 @@ def hypergraph_to_input_data(hypergraph):
             "n_links": n_l,
             "n_paths": n_p
             }, list(nx.get_node_attributes(D_G, 'delay').values())
-           # list(nx.get_node_attributes(D_G, 'occupancy').values())
-           # np.clip(list(nx.get_node_attributes(D_G, 'delay').values()), a_min=1e-9)
+    # list(nx.get_node_attributes(D_G, 'occupancy').values())
+    # np.clip(list(nx.get_node_attributes(D_G, 'delay').values()), a_min=1e-9)
 
 
 def input_fn(data_dir, min_scale, max_scale, samples_per_sample=1, shuffle=False, samples=None):
@@ -162,7 +162,7 @@ def input_fn(data_dir, min_scale, max_scale, samples_per_sample=1, shuffle=False
                                              "packets": tf.TensorShape([None]),
                                              "out_degree": tf.TensorShape([None]),
                                              "capacity": tf.TensorShape([None]),
-                                             "queue_size":  tf.TensorShape([None]),
+                                             "queue_size": tf.TensorShape([None]),
                                              "scale": tf.TensorShape([None]),
                                              "link_to_path": tf.TensorShape([None]),
                                              "path_to_link": tf.TensorShape([None]),
