@@ -71,7 +71,7 @@ class LinkDivModel(tf.keras.Model):
                                   activation=tf.keras.activations.relu),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.keras.activations.relu),
-            tf.keras.layers.Dense(output_units, activation=tf.keras.activations.relu)
+            tf.keras.layers.Dense(output_units)
         ])
 
     @tf.function
@@ -169,12 +169,10 @@ class LinkDivModel(tf.keras.Model):
             1])
 
         # Call the readout ANN
-        occupancy = self.readout(link_state)
-
-        return occupancy
+        occupancy = tf.math.exp(self.readout(link_state))
 
         tf.print("[real_occupancy, occupancy]")
-        tf.print(tf.concat([tf.math.log(real_occupancy), occupancy], axis=1), summarize=-1)
+        tf.print(tf.concat([real_occupancy, occupancy], axis=1), summarize=-1)
         """tf.print(real_occupancy, summarize=-1)
         tf.print("occupancy")
         tf.print(tf.math.log(occupancy), summarize=-1)"""
