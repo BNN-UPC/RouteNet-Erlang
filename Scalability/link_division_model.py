@@ -48,12 +48,6 @@ class LinkDivModel(tf.keras.Model):
                                   activation=tf.keras.activations.relu)
         ])
 
-        self.scaled_path = tf.keras.Sequential([
-            tf.keras.layers.Input(shape=int(self.config['HYPERPARAMETERS']['path_state_dim']) + 1),
-            tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['path_state_dim']),
-                                  activation=tf.keras.activations.relu)
-        ])
-
         self.aggr_mlp = tf.keras.Sequential([
             tf.keras.layers.Input(shape=4 * int(self.config['HYPERPARAMETERS']['path_state_dim'])),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
@@ -69,8 +63,10 @@ class LinkDivModel(tf.keras.Model):
             tf.keras.layers.Input(shape=int(self.config['HYPERPARAMETERS']['link_state_dim'])),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.keras.activations.relu),
+            tf.keras.layers.Dropout(0.8),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.keras.activations.relu),
+            tf.keras.layers.Dropout(0.8),
             tf.keras.layers.Dense(output_units, activation=tf.keras.activations.sigmoid)
         ])
 
