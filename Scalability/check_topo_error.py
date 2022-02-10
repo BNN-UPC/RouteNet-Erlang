@@ -51,7 +51,8 @@ model = LinkDivModel(params)
 loss_object = tf.keras.losses.MeanAbsolutePercentageError()
 model.compile(loss=loss_object,
               optimizer=optimizer,
-              run_eagerly=False)
+              run_eagerly=False,
+              metrics=["MAPE"])
 """def denorm_MAPE(y_true, y_pred):
     denorm_y_true = tf.math.exp(y_true)
     denorm_y_pred = tf.math.exp(y_pred)
