@@ -79,7 +79,7 @@ model.load_weights('./ckpt_dir/{}'.format(best))
 
 # for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260,
 #          280, 300]:
-for i in [120, 140, 170, 180, 220, 240, 260]:
+for i in [300]:
     print(f"TOPOLOGY SIZE: {i}")
     ds_test = input_fn(f'../data/scalability/test/{i}', min_scale=10, max_scale=11, shuffle=False)
     ds_test = ds_test.map(lambda x, y: transformation(x, y))
