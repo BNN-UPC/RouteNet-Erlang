@@ -138,7 +138,7 @@ def hypergraph_to_input_data(hypergraph):
             "sequence_path": sequence_path,
             "n_links": n_l,
             "n_paths": n_p
-            }, list(nx.get_node_attributes(D_G, 'delay').values())
+            }, list(nx.get_node_attributes(D_G, 'occupancy').values())
     # list(nx.get_node_attributes(D_G, 'occupancy').values())
     # np.clip(list(nx.get_node_attributes(D_G, 'delay').values()), a_min=1e-9)
 
