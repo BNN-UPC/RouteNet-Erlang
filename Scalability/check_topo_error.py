@@ -71,7 +71,7 @@ for f in os.listdir('./ckpt_dir'):
         if len(reg) > 0:
             mre = float(reg[0])
             if mre <= best_mre:
-                best = f.replace('.index', '')
+                best = f.split('.')[-1]
                 best_mre = mre
 
 print("BEST CHECKOINT FOUND: {}".format(best))
