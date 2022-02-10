@@ -85,5 +85,5 @@ for i in [120, 140, 170, 180, 220, 240, 260]:
     ds_test = ds_test.map(lambda x, y: transformation(x, y))
     ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
     for s in range(10):
-        ds_test = ds_test.skip(s)
-        model.evaluate(ds_test, steps=1)
+        ind_ds = ds_test.skip(s)
+        model.evaluate(ind_ds, steps=1)
