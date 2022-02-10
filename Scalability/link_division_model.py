@@ -62,11 +62,11 @@ class LinkDivModel(tf.keras.Model):
         self.readout = tf.keras.Sequential([
             tf.keras.layers.Input(shape=int(self.config['HYPERPARAMETERS']['link_state_dim'])),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
-                                  activation=tf.keras.activations.relu),
-            tf.keras.layers.Dropout(0.8),
+                                  activation=tf.keras.activations.relu,
+                                  kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
-                                  activation=tf.keras.activations.relu),
-            tf.keras.layers.Dropout(0.8),
+                                  activation=tf.keras.activations.relu,
+                                  kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
             tf.keras.layers.Dense(output_units, activation=tf.keras.activations.sigmoid)
         ])
 
