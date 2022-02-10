@@ -171,8 +171,8 @@ class LinkDivModel(tf.keras.Model):
         # Call the readout ANN
         occupancy = tf.math.exp(self.readout(link_state))
 
-        tf.print("[real_occupancy, occupancy]")
-        tf.print(tf.concat([real_occupancy, occupancy], axis=1), summarize=-1)
+        """tf.print("[real_occupancy, occupancy]")
+        tf.print(tf.concat([real_occupancy, occupancy], axis=1), summarize=-1)"""
         """tf.print(real_occupancy, summarize=-1)
         tf.print("occupancy")
         tf.print(tf.math.log(occupancy), summarize=-1)"""
