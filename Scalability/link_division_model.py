@@ -139,24 +139,13 @@ class LinkDivModel(tf.keras.Model):
             path_state_sequence, path_state = path_update_rnn(inputs=self.masking(link_inputs),
                                                               initial_state=initial_path_state)
 
-            # For every link, gather and sum the sequence of hidden states of the paths that contain it
-            #path_gather = tf.gather(path_state, path_to_link)
-            # tf.print(tf.gather(scale, link_to_path), summarize=-1)
-            # tf.print(path_state_sequence, summarize=-1)
+            # For every link, gather and compute the aggr. of the sequence of hidden states of the paths that contain it
             path_gather = tf.gather_nd(path_state_sequence, ids)
-
-            # scale_gather = tf.gather_nd(tf.scatter_nd(ids, tf.gather(scale, link_to_path), tf.stack([
-            #    n_paths,
-            #    max_len, 1])), ids)
-
-            # path_gather_scaled = self.scaled_path(tf.concat([path_gather, scale_gather], axis=1))
-            path_gather_scaled = path_gather
-            # path_gather_scaled = path_gather/scale_gather
-            path_sum = tf.math.unsorted_segment_mean(path_gather_scaled, sequence_links, n_links)
-            path_mean = tf.math.unsorted_segment_mean(path_gather_scaled, sequence_links, n_links)
-            path_max = tf.math.unsorted_segment_max(path_gather_scaled, sequence_links, n_links)
+            path_sum = tf.math.unsorted_segment_mean(path_gather, sequence_links, n_links)
+            path_mean = tf.math.unsorted_segment_mean(path_gather, sequence_links, n_links)
+            path_max = tf.math.unsorted_segment_max(path_gather, sequence_links, n_links)
             path_max = tf.where(tf.equal(tf.float32.min, path_max), tf.zeros_like(path_max), path_max)
-            path_min = tf.math.unsorted_segment_min(path_gather_scaled, sequence_links, n_links)
+            path_min = tf.math.unsorted_segment_min(path_gather, sequence_links, n_links)
             path_min = tf.where(tf.equal(tf.float32.max, path_min), tf.zeros_like(path_min), path_min)
 
             mlp_input = tf.concat([
@@ -165,14 +154,31 @@ class LinkDivModel(tf.keras.Model):
                 path_max,
                 path_min
             ], axis=1)
-            # tf.print("mlp_input")
-            # tf.print(mlp_input)
+
             mlp_input = tf.ensure_shape(mlp_input,
                                         [None, 4 * int(self.config['HYPERPARAMETERS']['path_state_dim'])])
             path_aggregation = self.aggr_mlp(mlp_input)
 
             link_state, _ = self.link_update(path_aggregation, [link_state])
 
+        ids = tf.stack([path_ids, sequence_path], axis=1)
+        max_len = tf.reduce_max(sequence_path) + 1
+        shape = tf.stack([
+            n_paths,
+            max_len,
+            1])
+
+        # Call the readout ANN
+        occupancy = self.readout(link_state)
+        occupancy += 1
+        occupancy_gather = tf.gather(occupancy, link_to_path)
+        occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
+        """tf.print("occupancy")
+        tf.print(occupancy)"""
+
+        occupancy = (occupancy*32)*1000
+
+        # Denormalize bandwidth and scale features
         bandwidth_mean = 21166.35
         bandwidth_std = 24631.01
         scale_mean = 10.5
@@ -182,35 +188,12 @@ class LinkDivModel(tf.keras.Model):
         real_cap = capacity * bandwidth_std + bandwidth_mean
         real_cap = real_cap * real_scale
 
-        ids = tf.stack([path_ids, sequence_path], axis=1)
-        max_len = tf.reduce_max(sequence_path) + 1
-        shape = tf.stack([
-            n_paths,
-            max_len,
-            1])
-
-        # Generate the aforementioned tensor [n_paths, max_len_path, dimension_link]
-
-        # Call the readout ANN and return its predictions
-        occupancy = self.readout(link_state)
-
-        """tf.print("occupancy")
-        tf.print(occupancy)"""
-        occupancy_gather = tf.gather(occupancy, link_to_path)
-        occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
-
-        occupancy = (occupancy*32)*1000
-        #occupancy = tf.where(tf.equal(occupancy, 1000), tf.zeros_like(occupancy), occupancy)
-
         capacity_gather = tf.gather(real_cap, link_to_path)
         capacity = tf.scatter_nd(ids, capacity_gather, shape)
         capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
 
-        """tf.print("capacity")
-        tf.print(capacity)
-        tf.print("occupancy / capacity")
-        tf.print(occupancy / capacity)"""
+        # Compute the delay given the queue occupancy and link capacities
         r = tf.math.reduce_sum(occupancy / capacity, axis=1)
-        """tf.print("r")
-        tf.print(r)"""
+        """tf.print("capacity")
+        tf.print(capacity)"""
         return r
