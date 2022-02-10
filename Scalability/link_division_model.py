@@ -71,7 +71,7 @@ class LinkDivModel(tf.keras.Model):
                                   activation=tf.keras.activations.relu),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.keras.activations.relu),
-            tf.keras.layers.Dense(output_units, activation=tf.keras.activations.sigmoid)
+            tf.keras.layers.Dense(output_units, activation=tf.keras.activations.relu)
         ])
 
     @tf.function
@@ -98,6 +98,7 @@ class LinkDivModel(tf.keras.Model):
         n_links = inputs['n_links']
         n_paths = inputs['n_paths']
 
+        real_occupancy = inputs['occupancy']
         # Initialize the initial hidden state for links
         link_shape = tf.stack([
             n_links,
@@ -116,7 +117,7 @@ class LinkDivModel(tf.keras.Model):
 
         initial_path_state = self.path_embedding(path_state)
 
-        for _ in range(5):
+        for _ in range(8):
             # The following lines generate a tensor of dimensions [n_paths, max_len_path, dimension_link] with all 0
             # but the link hidden states
 
@@ -141,7 +142,7 @@ class LinkDivModel(tf.keras.Model):
 
             # For every link, gather and compute the aggr. of the sequence of hidden states of the paths that contain it
             path_gather = tf.gather_nd(path_state_sequence, ids)
-            path_sum = tf.math.unsorted_segment_mean(path_gather, sequence_links, n_links)
+            path_sum = tf.math.unsorted_segment_sum(path_gather, sequence_links, n_links)
             path_mean = tf.math.unsorted_segment_mean(path_gather, sequence_links, n_links)
             path_max = tf.math.unsorted_segment_max(path_gather, sequence_links, n_links)
             path_max = tf.where(tf.equal(tf.float32.min, path_max), tf.zeros_like(path_max), path_max)
@@ -158,7 +159,6 @@ class LinkDivModel(tf.keras.Model):
             mlp_input = tf.ensure_shape(mlp_input,
                                         [None, 4 * int(self.config['HYPERPARAMETERS']['path_state_dim'])])
             path_aggregation = self.aggr_mlp(mlp_input)
-
             link_state, _ = self.link_update(path_aggregation, [link_state])
 
         ids = tf.stack([path_ids, sequence_path], axis=1)
@@ -170,23 +170,25 @@ class LinkDivModel(tf.keras.Model):
 
         # Call the readout ANN
         occupancy = self.readout(link_state)
+
+        return occupancy
+
+        tf.print("[real_occupancy, occupancy]")
+        tf.print(tf.concat([tf.math.log(real_occupancy), occupancy], axis=1), summarize=-1)
+        """tf.print(real_occupancy, summarize=-1)
+        tf.print("occupancy")
+        tf.print(tf.math.log(occupancy), summarize=-1)"""
+
         occupancy_gather = tf.gather(occupancy, link_to_path)
         occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
-
-        """tf.print("occupancy0")
-        tf.print((occupancy*32)*1000)"""
-        occupancy = (occupancy*32)*1000+1000
-        occupancy = tf.where(tf.equal(occupancy, 1000), tf.zeros_like(occupancy), occupancy)
-        """tf.print("occupancy1")
-        tf.print(occupancy)"""
 
         # Denormalize bandwidth and scale features
         bandwidth_mean = 21166.35
         bandwidth_std = 24631.01
         scale_mean = 10.5
         scale_std = 5.77
-        real_scale = scale * scale_std + scale_mean
 
+        real_scale = scale * scale_std + scale_mean
         real_cap = capacity * bandwidth_std + bandwidth_mean
         real_cap = real_cap * real_scale
 
@@ -195,7 +197,7 @@ class LinkDivModel(tf.keras.Model):
         capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
 
         # Compute the delay given the queue occupancy and link capacities
-        r = tf.math.reduce_sum(occupancy / capacity, axis=1)
+        r = tf.math.reduce_sum((occupancy * 32 * 1000) / capacity + 1000 / capacity, axis=1)
         """tf.print("capacity")
         tf.print(capacity)"""
         return r

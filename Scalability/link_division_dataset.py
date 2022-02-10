@@ -127,6 +127,7 @@ def hypergraph_to_input_data(hypergraph):
     return {"traffic": list(nx.get_node_attributes(D_G, 'traffic').values()),
             "packets": list(nx.get_node_attributes(D_G, 'packets').values()),
             "out_degree": out_degree,
+            "occupancy": list(nx.get_node_attributes(D_G, 'occupancy').values()),
             "capacity": list(nx.get_node_attributes(D_G, 'capacity').values()),
             "queue_size": list(nx.get_node_attributes(D_G, 'queue_size').values()),
             "scale": list(nx.get_node_attributes(D_G, 'scale').values()),
@@ -137,7 +138,7 @@ def hypergraph_to_input_data(hypergraph):
             "sequence_path": sequence_path,
             "n_links": n_l,
             "n_paths": n_p
-            }, list(nx.get_node_attributes(D_G, 'delay').values())
+            }, list(nx.get_node_attributes(D_G, 'occupancy').values())
     # list(nx.get_node_attributes(D_G, 'occupancy').values())
     # np.clip(list(nx.get_node_attributes(D_G, 'delay').values()), a_min=1e-9)
 
@@ -152,6 +153,7 @@ def input_fn(data_dir, min_scale, max_scale, samples_per_sample=1, shuffle=False
                                              "capacity": tf.float32,
                                              "queue_size": tf.int32,
                                              "scale": tf.float32,
+                                             "occupancy": tf.float32,
                                              "link_to_path": tf.int32,
                                              "path_to_link": tf.int32, "path_ids": tf.int32,
                                              "sequence_links": tf.int32, "sequence_path": tf.int32,
@@ -162,6 +164,7 @@ def input_fn(data_dir, min_scale, max_scale, samples_per_sample=1, shuffle=False
                                              "packets": tf.TensorShape([None]),
                                              "out_degree": tf.TensorShape([None]),
                                              "capacity": tf.TensorShape([None]),
+                                             "occupancy": tf.TensorShape([None]),
                                              "queue_size": tf.TensorShape([None]),
                                              "scale": tf.TensorShape([None]),
                                              "link_to_path": tf.TensorShape([None]),
