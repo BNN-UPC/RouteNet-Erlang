@@ -71,7 +71,8 @@ ckpt_dir = 'ckpt_dir'
 latest = tf.train.latest_checkpoint(ckpt_dir)
 
 if latest is not None:
-    print("Found a pretrained model, restoring...")best = None
+    print("Found a pretrained model, restoring...")
+    best = None
     best_mre = float('inf')
     for f in os.listdir('./ckpt_dir'):
         if os.path.isfile(os.path.join('./ckpt_dir', f)):
