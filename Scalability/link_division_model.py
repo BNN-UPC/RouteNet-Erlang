@@ -98,7 +98,7 @@ class LinkDivModel(tf.keras.Model):
         n_links = inputs['n_links']
         n_paths = inputs['n_paths']
 
-        real_occupancy =  tf.expand_dims(tf.squeeze(inputs['occupancy']), axis=1)
+        real_occupancy = tf.expand_dims(tf.squeeze(inputs['occupancy']), axis=1)
         # Initialize the initial hidden state for links
         link_shape = tf.stack([
             n_links,
@@ -193,7 +193,7 @@ class LinkDivModel(tf.keras.Model):
 
         capacity_gather = tf.gather(real_cap, link_to_path)
         capacity = tf.scatter_nd(ids, capacity_gather, shape)
-        #capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
+        # capacity = tf.where(tf.equal(capacity, 0), tf.ones_like(capacity), capacity)
 
         # Compute the delay given the queue occupancy and link capacities
         queueing_delay = (occupancy * 32 * 1000) / capacity
@@ -204,12 +204,11 @@ class LinkDivModel(tf.keras.Model):
         tf.print(queueing_delay)"""
         queueing_delay = tf.math.reduce_sum(queueing_delay, axis=1)
 
-
-        trans_delay = (occupancy * 32 * 1000) / capacity
+        trans_delay = 1000 / capacity
         """tf.print("trans_delay0")
         tf.print(trans_delay)"""
-        trans_delay = tf.where(tf.math.is_nan(trans_delay), tf.zeros_like(trans_delay), trans_delay)
+        trans_delay = tf.where(tf.math.is_inf(trans_delay), tf.zeros_like(trans_delay), trans_delay)
         """tf.print("trans_delay1")
         tf.print(trans_delay)"""
         trans_delay = tf.math.reduce_sum(trans_delay, axis=1)
-        return queueing_delay+trans_delay
+        return queueing_delay + trans_delay
