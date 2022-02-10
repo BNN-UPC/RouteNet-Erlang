@@ -63,32 +63,29 @@ model.compile(loss=loss_object,
               run_eagerly=False,
               metrics=denorm_MAPE)"""
 
-ckpt_dir = 'ckpt_dir'
-latest = tf.train.latest_checkpoint(ckpt_dir)
+best = None
+best_mre = float('inf')
+for f in os.listdir('./ckpt_dir'):
+    if os.path.isfile(os.path.join('./ckpt_dir', f)):
+        reg = re.findall("\d+\.\d+", f)
+        if len(reg) > 0:
+            mre = float(reg[0])
+            if mre <= best_mre:
+                best = f.replace('.index', '')
+                best_mre = mre
 
-if latest is not None:
-    print("Found a pretrained model, restoring...")
-    model.load_weights(latest)
-else:
-    print("Starting training from scratch...")
+print("BEST CHECKOINT FOUND: {}".format(best))
+model.load_weights('./ckpt_dir/{}'.format(best))
 
-filepath = os.path.join(ckpt_dir, "{epoch:02d}-{val_loss:.2f}")
+model.load_weights(best)
 
-cp_callback = tf.keras.callbacks.ModelCheckpoint(
-    filepath=filepath,
-    verbose=1,
-    mode="min",
-    monitor='val_loss',
-    save_best_only=False,
-    save_weights_only=True,
-    save_freq='epoch')
-
-for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260,
-          280, 300]:
+# for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260,
+#          280, 300]:
+for i in [120, 140, 170, 180, 220, 240, 260]:
     print(f"TOPOLOGY SIZE: {i}")
     ds_test = input_fn(f'../data/scalability/test/{i}', min_scale=10, max_scale=11, shuffle=False)
     ds_test = ds_test.map(lambda x, y: transformation(x, y))
     ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-    for s in range(5):
+    for s in range(10):
         ds_test = ds_test.skip(s)
         model.evaluate(ds_test, steps=1)
