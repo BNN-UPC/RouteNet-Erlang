@@ -57,7 +57,7 @@ model.compile(loss=loss_object,
               optimizer=optimizer,
               run_eagerly=False)
 
-ckpt_dir = params['DIRECTORIES']['logs'] + '/delay'
+ckpt_dir = 'ckpt_dir'
 latest = tf.train.latest_checkpoint(ckpt_dir)
 
 if latest is not None:
@@ -66,7 +66,7 @@ if latest is not None:
 else:
     print("Starting training from scratch...")
 
-filepath = os.path.join(ckpt_dir, "{epoch:02d}-{val_MAPE:.2f}")
+filepath = os.path.join(ckpt_dir, "{epoch:02d}-{val_loss:.2f}")
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=filepath,
@@ -78,9 +78,10 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(
     save_freq='epoch')
 
 model.fit(ds_train,
-          epochs=100,
+          epochs=200,
           steps_per_epoch=4000,
           validation_data=ds_test,
+          validation_steps=20,
           callbacks=[cp_callback],
           batch_size=32,
           use_multiprocessing=True)
