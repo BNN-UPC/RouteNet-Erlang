@@ -174,9 +174,9 @@ class LinkDivModel(tf.keras.Model):
         # Call the readout ANN
         occupancy = self.readout(link_state)
 
-        tf.print("[real_occupancy, occupancy]")
+        """tf.print("[real_occupancy, occupancy]")
         p = tf.concat([real_occupancy, occupancy], axis=1)
-        tf.print(p)
+        tf.print(p)"""
 
         occupancy_gather = tf.gather(occupancy, link_to_path)
         occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
