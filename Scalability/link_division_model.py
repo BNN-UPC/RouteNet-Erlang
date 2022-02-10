@@ -98,7 +98,7 @@ class LinkDivModel(tf.keras.Model):
         n_links = inputs['n_links']
         n_paths = inputs['n_paths']
 
-        real_occupancy = inputs['occupancy']
+        real_occupancy =  tf.expand_dims(tf.squeeze(inputs['occupancy']), axis=1)
         # Initialize the initial hidden state for links
         link_shape = tf.stack([
             n_links,
