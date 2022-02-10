@@ -42,7 +42,7 @@ ds_train = ds_train.map(lambda x, y: transformation(x, y))
 ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 ds_train = ds_train.repeat()
 
-ds_test = input_fn('../data/scalability/test', min_scale=10, max_scale=11, shuffle=False)
+ds_test = input_fn('../data/scalability/test/ch21-test-with-labels-setting-2/300', min_scale=10, max_scale=11, shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
