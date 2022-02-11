@@ -84,6 +84,7 @@ for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 
     ds_test = input_fn(f'../data/scalability/test/{i}', min_scale=10, max_scale=11, shuffle=False)
     ds_test = ds_test.map(lambda x, y: transformation(x, y))
     ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-    for s in range(5):
+    for s in range(20):
+        print(f"SAMPLE NUM: {s}")
         ind_ds = ds_test.skip(s)
         model.evaluate(ind_ds, steps=1)
