@@ -64,18 +64,7 @@ model.compile(loss=loss_object,
               run_eagerly=False,
               metrics=denorm_MAPE)"""
 
-best = None
-best_mre = float('inf')
-for f in os.listdir('./ckpt_dir'):
-    if os.path.isfile(os.path.join('./ckpt_dir', f)):
-        reg = re.findall("\d+\.\d+", f)
-        if len(reg) > 0:
-            mre = float(reg[0])
-            if mre <= best_mre:
-                best = '.'.join(f.split('.')[:-1])
-                best_mre = mre
-
-print("BEST CHECKOINT FOUND: {}".format(best))
+best = "69-27.32"
 model.load_weights('./ckpt_dir/{}'.format(best))
 
 for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260,
