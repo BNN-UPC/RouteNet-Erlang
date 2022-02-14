@@ -119,13 +119,15 @@ def process_topology(root_path, prefix, out_path, samples_per_file, total_sample
     print ("join_simple_dataset.py <src_dataset_path> <prefix for new dataset> <destination path> <sample per file> <total samples>")
     exit(1)"""
 
-root_path = './data/scalability/test'
-prefix = 'results'
-out_root_dir = './data/cleaned'
-samples_per_file = 1
-total_samples = -1
+for i in [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 220, 240, 260,
+          280, 300]:
+    root_path = f'./data/scalability/test/{i}'
+    prefix = ''
+    out_root_dir = f'./data/cleaned/{i}'
+    samples_per_file = 1
+    total_samples = -1
 
-process_topology(root_path, prefix, out_root_dir, samples_per_file,total_samples)
+    process_topology(root_path, prefix, out_root_dir, samples_per_file,total_samples)
 
 
 
