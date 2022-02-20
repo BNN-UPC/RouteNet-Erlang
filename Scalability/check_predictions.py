@@ -8,8 +8,8 @@ from glob import iglob
 import pickle
 
 sys.path.insert(1, "./code")
-from link_division_dataset import input_fn, network_to_hypergraph
-from link_division_model import LinkDivModel
+from read_dataset import input_fn, network_to_hypergraph
+from model import GNN_Model
 import configparser
 import tensorflow as tf
 from datanetAPI import DatanetAPI
@@ -42,12 +42,13 @@ params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
 params.read('config.ini')
 
-model = LinkDivModel(params)
+model = GNN_Model(params)
 
-model.load_weights('./trained_models/MAPE_1_20/17-15.52')
+model.load_weights('./ckpt_dir/69-9.91')
 
-directories = [d for d in iglob(params['DIRECTORIES']['test'] + '/*/*')]
+directories = [d for d in iglob(params['DIRECTORIES']['test'] + '/*')]
 # First, sort by scenario and second, by topology size
+
 directories.sort(key=lambda f: (os.path.dirname(f), int(os.path.basename(f))))
 
 path_MAPE = {}
@@ -60,7 +61,7 @@ for d in directories:
 
     print("PREDICTING...")
     print("Directory: {}".format(d))
-    scenario = int(str(os.path.dirname(d))[-1])
+    scenario = int(str(os.path.basename(d)))
     pred = model.predict(ds_test)
     pred = np.squeeze(pred)
 
@@ -109,32 +110,3 @@ for d in directories:
 
         num_samples += 1
         print(num_samples)
-    o_file = open("SolutionGNNNet2021/MAPE_test.pkl", "wb")
-    pickle.dump(path_MAPE, o_file)
-    o_file.close()
-
-o_file = open("SolutionGNNNet2021/MAPE_test.pkl", "wb")
-pickle.dump(path_MAPE, o_file)
-o_file.close()
-"""occupancy = []
-for link in link_nodes:
-    occupancy.append(HG.nodes[link]['occupancy'])
-
-import matplotlib.pyplot as plt
-plt.hist(occupancy,bins=1000)
-plt.show()
-
-
-paths_MRE = {}
-for p in path_nodes:
-    neighbour_links = [n_l for n_l in HG[p]]
-    if len(neighbour_links) not in paths_MRE.keys():
-        paths_MRE[len(neighbour_links)] = []
-    l_mre = []
-    for n_l in neighbour_links:
-        l_mre.append(HG.nodes[n_l]['MRE'])
-    paths_MRE[len(neighbour_links)].append(l_mre)
-
-for k in sorted(paths_MRE):
-    print("Length: {} MAPE: {}".format(k, np.mean(np.abs(paths_MRE[k])) * 100))
-"""

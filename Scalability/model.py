@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-class LinkDivModel(tf.keras.Model):
+class GNN_Model(tf.keras.Model):
     """ Init method for the custom model.
     Args:
         config (dict): Python dictionary containing the diferent configurations
@@ -17,7 +17,7 @@ class LinkDivModel(tf.keras.Model):
     """
 
     def __init__(self, config, output_units=1):
-        super(LinkDivModel, self).__init__()
+        super(GNN_Model, self).__init__()
 
         # Configuration dictionary. It contains the needed Hyperparameters for the model.
         # All the Hyperparameters can be found in the config.ini file
@@ -83,18 +83,15 @@ class LinkDivModel(tf.keras.Model):
 
         traffic = tf.expand_dims(tf.squeeze(inputs['traffic']), axis=1)
         packets = tf.expand_dims(tf.squeeze(inputs['packets']), axis=1)
-        out_degree = tf.expand_dims(tf.squeeze(inputs['out_degree']), axis=1)
         capacity = tf.expand_dims(tf.squeeze(inputs['capacity']), axis=1)
         scale = tf.expand_dims(tf.squeeze(inputs['scale']), axis=1)
         link_to_path = tf.squeeze(inputs['link_to_path'])
-        path_to_link = tf.squeeze(inputs['path_to_link'])
         path_ids = tf.squeeze(inputs['path_ids'])
         sequence_path = tf.squeeze(inputs['sequence_path'])
         sequence_links = tf.squeeze(inputs['sequence_links'])
         n_links = inputs['n_links']
         n_paths = inputs['n_paths']
 
-        real_occupancy = tf.expand_dims(tf.squeeze(inputs['occupancy']), axis=1)
         # Initialize the initial hidden state for links
         link_shape = tf.stack([
             n_links,
@@ -170,10 +167,6 @@ class LinkDivModel(tf.keras.Model):
         # Call the readout ANN
         occupancy = self.readout(link_state)
 
-        """tf.print("[real_occupancy, occupancy]")
-        p = tf.concat([real_occupancy, occupancy], axis=1)
-        tf.print(p)"""
-
         occupancy_gather = tf.gather(occupancy, link_to_path)
         occupancy = tf.scatter_nd(ids, occupancy_gather, shape)
 
@@ -193,18 +186,10 @@ class LinkDivModel(tf.keras.Model):
 
         # Compute the delay given the queue occupancy and link capacities
         queueing_delay = (occupancy * 32 * 1000) / capacity
-        """tf.print("queueing_delay0")
-        tf.print(queueing_delay)"""
         queueing_delay = tf.where(tf.math.is_nan(queueing_delay), tf.zeros_like(queueing_delay), queueing_delay)
-        """tf.print("queueing_delay1")
-        tf.print(queueing_delay)"""
         queueing_delay = tf.math.reduce_sum(queueing_delay, axis=1)
 
         trans_delay = 1000 / capacity
-        """tf.print("trans_delay0")
-        tf.print(trans_delay)"""
         trans_delay = tf.where(tf.math.is_inf(trans_delay), tf.zeros_like(trans_delay), trans_delay)
-        """tf.print("trans_delay1")
-        tf.print(trans_delay)"""
         trans_delay = tf.math.reduce_sum(trans_delay, axis=1)
         return queueing_delay + trans_delay

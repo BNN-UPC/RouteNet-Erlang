@@ -1,10 +1,10 @@
 import sys
 import re
 sys.path.insert(1, "./code")
-from link_division_model import LinkDivModel
+from model import GNN_Model
 import configparser
 import tensorflow as tf
-from link_division_dataset import input_fn
+from read_dataset import input_fn
 
 import os
 
@@ -50,22 +50,12 @@ ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
 optimizer = tf.keras.optimizers.Adam()
 
-model = LinkDivModel(params)
+model = GNN_Model(params)
 
 loss_object = tf.keras.losses.MeanAbsolutePercentageError()
 model.compile(loss=loss_object,
               optimizer=optimizer,
               run_eagerly=False)
-"""def denorm_MAPE(y_true, y_pred):
-    denorm_y_true = tf.math.exp(y_true)
-    denorm_y_pred = tf.math.exp(y_pred)
-    return tf.abs((denorm_y_pred - denorm_y_true) / denorm_y_true) * 100
-
-loss_object = tf.keras.losses.MeanSquaredError()
-model.compile(loss=loss_object,
-              optimizer=optimizer,
-              run_eagerly=False,
-              metrics=denorm_MAPE)"""
 
 ckpt_dir = 'ckpt_dir'
 latest = tf.train.latest_checkpoint(ckpt_dir)
