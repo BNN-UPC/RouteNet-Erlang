@@ -38,11 +38,6 @@ params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
 params.read('config.ini')
 
-ds_train = input_fn('../../../data/traffic_models/modulated/train', label='delay', shuffle=True)
-ds_train = ds_train.map(lambda x, y: transformation(x, y))
-ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
-ds_train = ds_train.repeat()
-
 ds_test = input_fn('../../../data/traffic_models/modulated/test', label='delay', shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
@@ -74,6 +69,8 @@ for f in os.listdir('./ckpt_dir'):
 
 print("BEST CHECKOINT FOUND: {}".format(best))
 model.load_weights('./ckpt_dir/{}'.format(best))
+
+model.evaluate(ds_test)
 
 predictions = model.predict(ds_test)
 predictions = np.exp(predictions)

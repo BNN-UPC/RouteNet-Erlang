@@ -33,6 +33,7 @@ class GNN_Model(tf.keras.Model):
         time_dist_params = tf.squeeze(inputs['time_dist_params'])
         capacity = tf.expand_dims(tf.squeeze(inputs['capacity']), axis=1)
         link_to_path = tf.squeeze(inputs['link_to_path'])
+        path_to_link = tf.squeeze(inputs['path_to_link'])
         path_ids = tf.squeeze(inputs['path_ids'])
         sequence_path = tf.squeeze(inputs['sequence_path'])
         sequence_links = tf.squeeze(inputs['sequence_links'])
@@ -65,7 +66,7 @@ class GNN_Model(tf.keras.Model):
             tf.zeros(path_shape)
         ], axis=1)
 
-        for _ in range(6):
+        for _ in range(int(self.config['HYPERPARAMETERS']['t'])):
             # The following lines generate a tensor of dimensions [n_paths, max_len_path, dimension_link] with all 0
             # but the link hidden states
             link_gather = tf.gather(link_state, link_to_path)
@@ -88,7 +89,8 @@ class GNN_Model(tf.keras.Model):
                                                               initial_state=path_state)
 
             # For every link, gather and sum the sequence of hidden states of the paths that contain it
-            path_gather = tf.gather_nd(path_state_sequence, ids)
+            path_gather = tf.gather(path_state, path_to_link)
+            # path_gather = tf.gather_nd(path_state_sequence, ids)
             path_sum = tf.math.unsorted_segment_sum(path_gather, sequence_links, n_links)
 
             # Second message passing: update the link_state

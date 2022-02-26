@@ -128,55 +128,6 @@ def network_to_hypergraph(sample):
 
     return D_G
 
-
-"""def hypergraph_to_input_data(hypergraph, label):
-    n_p = 0
-    n_l = 0
-    mapping = {}
-    for entity in list(hypergraph.nodes()):
-        if entity.startswith('p'):
-            mapping[entity] = ('p_{}'.format(n_p))
-            n_p += 1
-        elif entity.startswith('l'):
-            mapping[entity] = ('l_{}'.format(n_l))
-            n_l += 1
-
-    D_G = nx.relabel_nodes(hypergraph, mapping)
-
-    link_to_path = []
-    path_ids = []
-    sequence_path = []
-    for i in range(n_p):
-        seq_len = 0
-        for elem in D_G['p_{}'.format(i)]:
-            link_to_path.append(int(elem.replace('l_', '')))
-            seq_len += 1
-        path_ids.extend(np.full(seq_len, i))
-        sequence_path.extend(range(seq_len))
-
-    path_to_link = []
-    sequence_links = []
-    for i in range(n_l):
-        seq_len = 0
-        for elem in D_G['l_{}'.format(i)]:
-            path_to_link.append(int(elem.replace('p_', '')))
-            seq_len += 1
-        sequence_links.extend(np.full(seq_len, i))
-
-    return {"traffic": list(nx.get_node_attributes(D_G, 'traffic').values()),
-            "packets": list(nx.get_node_attributes(D_G, 'packets').values()),
-            "time_dist_params": list(nx.get_node_attributes(D_G, 'time_dist_params').values()),
-            "capacity": list(nx.get_node_attributes(D_G, 'capacity').values()),
-            "link_to_path": link_to_path,
-            "path_to_link": path_to_link,
-            "path_ids": path_ids,
-            "sequence_links": sequence_links,
-            "sequence_path": sequence_path,
-            "n_links": n_l,
-            "n_paths": n_p
-            }, list(nx.get_node_attributes(D_G, label).values())"""
-
-
 def input_fn(data_dir, label, shuffle=False, samples=None):
     ds = tf.data.Dataset.from_generator(lambda: generator(data_dir=data_dir, label=label, shuffle=shuffle),
                                         output_types=(
