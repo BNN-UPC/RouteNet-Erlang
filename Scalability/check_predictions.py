@@ -1,11 +1,8 @@
-import networkx as nx
-import tensorflow as tf
 import sys
 import numpy as np
-import pandas as pd
 import networkx as nx
 from glob import iglob
-import pickle
+import re
 
 sys.path.insert(1, "./code")
 from read_dataset import input_fn, network_to_hypergraph
@@ -44,7 +41,22 @@ params.read('config.ini')
 
 model = GNN_Model(params)
 
-model.load_weights('./ckpt_dir/69-9.91')
+best = None
+best_mre = float('inf')
+for f in os.listdir('./ckpt_dir'):
+    if os.path.isfile(os.path.join('./ckpt_dir', f)):
+        reg = re.findall("\d+\.\d+", f)
+        if len(reg) > 0:
+            mre = float(reg[0])
+            if mre <= best_mre:
+                best = f.replace('.index', '')
+                if '.data' in best:
+                    idx = best.rfind('.')
+                    best = best[:idx]
+                best_mre = mre
+
+print("BEST CHECKOINT FOUND: {}".format(best))
+model.load_weights('./ckpt_dir/{}'.format(best))
 
 directories = [d for d in iglob(params['DIRECTORIES']['test'] + '/*')]
 # First, sort by scenario and second, by topology size
@@ -70,6 +82,9 @@ for d in directories:
     it = iter(tool)
     index = 0
     for sample in it:
+        num_samples += 1
+        print(num_samples)
+
         G_copy = sample.get_topology_object().copy()
         T = sample.get_traffic_matrix()
         R = sample.get_routing_matrix()
@@ -101,12 +116,9 @@ for d in directories:
                 l_mre.append(HG.nodes[n_l]['MRE'])
             MRE.append(np.mean(np.abs(l_mre)))
 
-        print(np.mean(np.abs(MRE)))
+        print("MAPE: {:.2f} %".format(np.mean(np.abs(MRE))))
         if scenario not in path_MAPE:
             path_MAPE[scenario] = {}
         if len(G_copy) not in path_MAPE[scenario]:
             path_MAPE[scenario][len(G_copy)] = []
         path_MAPE[scenario][len(G_copy)].append(MRE)
-
-        num_samples += 1
-        print(num_samples)

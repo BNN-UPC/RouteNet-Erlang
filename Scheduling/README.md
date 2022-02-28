@@ -1,5 +1,5 @@
 # How to reproduce the experiments
-This model has been trained to predict two performance metrics ([Delay](./Delay) and [Jitter](./Jitter)). In each directory,
+This model has been trained to predict two performance metrics ([Delay](./Delay), [Jitter](./Jitter) and [Losses](./Losses)). In each directory,
 you will find the needed files to train/validate and predict the metrics per each traffic model.
 
 ## Dependencies
@@ -15,11 +15,11 @@ pip install -r requirements.txt
 
 ## Download the data
 You can download the datasets for this particular experiment here:
-- [Traffic Models Dataset](https://bnn.upc.edu/download/dataset-v5-traffic-models/)
+- [Scheduling Dataset](https://bnn.upc.edu/download/dataset-v5-scheduling/)
 
 Otherwise, you can download the datasets using the following command:
 ```
-wget -O traffic_models.zip https://bnn.upc.edu/download/dataset-v5-traffic-models/)
+wget -O scheduling.zip https://bnn.upc.edu/download/dataset-v5-scheduling/
 ```
 
 Note that this dataset is a zip file, so you need to decompress it first. Also, these experiments suppose that the data 

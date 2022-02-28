@@ -1,7 +1,4 @@
 # How to reproduce the experiments
-This model has been trained to predict two performance metrics ([Delay](./Delay) and [Jitter](./Jitter)). In each directory,
-you will find the needed files to train/validate and predict the metrics per each traffic model.
-
 ## Dependencies
 
 **Recommended: Python 3.7**
@@ -15,11 +12,11 @@ pip install -r requirements.txt
 
 ## Download the data
 You can download the datasets for this particular experiment here:
-- [Traffic Models Dataset](https://bnn.upc.edu/download/dataset-v5-traffic-models/)
+- [Scalability Dataset](https://bnn.upc.edu/download/dataset-v5-scalability/)
 
 Otherwise, you can download the datasets using the following command:
 ```
-wget -O traffic_models.zip https://bnn.upc.edu/download/dataset-v5-traffic-models/)
+wget -O scalability.zip https://bnn.upc.edu/download/dataset-v5-scalability/
 ```
 
 Note that this dataset is a zip file, so you need to decompress it first. Also, these experiments suppose that the data 
@@ -51,12 +48,19 @@ part and just use the following command to predict the metrics:
 python check_prediction.py
 ```
 This script will, first, load the best model located in the `ckp_dir` directory. Then, it will evaluate the metrics for
-each one of the sample datasets and finally, store the results in a `predictions.npy` file.
+each one of the sample datasets.
 
 Again, if you configured everything correctly, you should see something like this:
 ```
-BEST CHECKOINT FOUND: 192-3.56
-    114/Unknown - 6s 33ms/step - loss: 0.0028 - denorm_MAPE: 3.5782
+BEST CHECKOINT FOUND: 69-9.91
+PREDICTING...
+Directory: ../data/scalability/test\50
+2022-02-28 18:46:19.864938: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+COLLECTING...
+1
+MAPE: 7.31 %
+2
+MAPE: 5.98 %
 ```
 
 ## License
