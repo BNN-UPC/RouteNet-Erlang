@@ -1,24 +1,23 @@
 import os
 import sys
-
-sys.path.insert(1, '../../data/')
+sys.path.insert(1, '../../')
+sys.path.insert(1, '../')
 
 from read_dataset import input_fn
-from Scheduling.model import GNN_Model
+from model import GNN_Model
 import configparser
 import tensorflow as tf
 import re
-
+import numpy as np
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-
 def transformation(x, y):
-    traffic_mean = 1650.59814453125
-    traffic_std = 855.7061767578125
-    packets_mean = 1.650602102279663
-    packets_std = 0.8556720614433289
-    capacity_mean = 25457.9453125
-    capacity_std = 16221.1337890625
+    traffic_mean = 660.5723876953125
+    traffic_std = 420.22003173828125
+    packets_mean = 0.6605737209320068
+    packets_std = 0.42021000385284424
+    capacity_mean = 25442.669921875
+    capacity_std = 16217.9072265625
 
     x["traffic"] = (x["traffic"] - traffic_mean) / traffic_std
 
@@ -26,7 +25,7 @@ def transformation(x, y):
 
     x["capacity"] = (x["capacity"] - capacity_mean) / capacity_std
 
-    return x, y
+    return x, tf.math.log(y)
 
 
 def denorm_MAPE(y_true, y_pred):
@@ -39,10 +38,9 @@ params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
 params.read('config.ini')
 
-ds_test = input_fn('../../data/gnnet_data_set_evaluation_delays', label='PktsDrop', shuffle=False)
+ds_test = input_fn('../../../data/traffic_models/constant_bitrate/test', label='delay', shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-ds_test = ds_test.take(1)
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=float(params['HYPERPARAMETERS']['learning_rate']))
 
@@ -64,9 +62,16 @@ for f in os.listdir('./ckpt_dir'):
             mre = float(reg[0])
             if mre <= best_mre:
                 best = f.replace('.index', '')
+                if '.data' in best:
+                    idx = best.rfind('.')
+                    best = best[:idx]
                 best_mre = mre
 
 print("BEST CHECKOINT FOUND: {}".format(best))
 model.load_weights('./ckpt_dir/{}'.format(best))
 
+model.evaluate(ds_test)
+
 predictions = model.predict(ds_test)
+predictions = np.exp(predictions)
+np.save('predictions.npy', predictions)

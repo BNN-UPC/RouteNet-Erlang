@@ -39,7 +39,7 @@ params = configparser.ConfigParser()
 params._interpolation = configparser.ExtendedInterpolation()
 params.read('config.ini')
 
-ds_test = input_fn('../../data/gnnet_data_set_evaluation_delays', label='AvgDelay', shuffle=False)
+ds_test = input_fn('../../data/scheduling/test', label='delay', shuffle=False)
 ds_test = ds_test.map(lambda x, y: transformation(x, y))
 ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 

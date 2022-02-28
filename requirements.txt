@@ -1,0 +1,4 @@
+tensorflow==2.6.*
+networkx==2.5.*
+configparser==5.2.*
+pandas==1.3.*
