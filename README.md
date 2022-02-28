@@ -5,37 +5,6 @@ networks. RouteNet-Erlang supports complex traffic models, multi-queue schedulin
 can provide accurate estimates in networks not seen in the training phase.
 
 ## Quick Start
-### Dependencies
-
-**Recommended: Python 3.7**
-
-Please, ensure you use Python 3.7. Otherwise, we do not guarantee the correct installation of dependencies.
-
-You can install all the dependencies by running the following commands.
-```
-pip install -r requirements.txt
-```
-
-### Datasets
-You can download the datasets for each experiment here:
-- [Scheduling Dataset](https://bnn.upc.edu/download/dataset-v5-scheduling/)
-- [Traffic Models Dataset](https://bnn.upc.edu/download/dataset-v5-traffic-models/)
-- [Scalability Dataset](https://bnn.upc.edu/download/dataset-v5-scalability/)
-
-Otherwise, you can download the datasets using the following commands:
-- Scheduling Dataset:
-```
-wget -O scheduling.zip https://bnn.upc.edu/download/dataset-v5-scheduling/
-```
-- Traffic Models Dataset:
-```
-wget -O traffic_models.zip https://bnn.upc.edu/download/dataset-v5-traffic-models/)
-```
-- Scalability Dataset:
-```
-wget -O scalability.zip https://bnn.upc.edu/download/dataset-v5-scalability/
-```
-
 ### Project structure
 
 The project is divided into three main blocks: scheduling, traffic models, and scalability. Each block has its own 
@@ -51,8 +20,11 @@ The project also contains some auxiliary files like `datanetAPI.py` used to read
 `read_dataset.py` that is used to convert the samples provided by the dataset API into the graph that is taken as
 input by the model.
 
+You can find more information about the reproducibility of the experiments inside each one of the directories 
+([Scheduling](/Scheduling/README.md), [Traffic Models](/TrafficModels/README.md), [Scalability](/Scalability/README.md)).
+
 ## Main Contributors
-#### M. Ferriol-Galmés, K. Rusek, J. Suárez-Varela, P. Barlet-Ros, A. Cabellos-Aparicio.
+#### M. Ferriol-Galmés, J. Suárez-Varela, P. Barlet-Ros, A. Cabellos-Aparicio.
 
 [Barcelona Neural Networking center](https://bnn.upc.edu/), Universitat Politècnica de Catalunya
 
