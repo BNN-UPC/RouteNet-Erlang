@@ -4,6 +4,17 @@ This is the official implementation of RouteNet-Erlang, a pioneering GNN archite
 networks. RouteNet-Erlang supports complex traffic models, multi-queue scheduling policies, routing policies and 
 can provide accurate estimates in networks not seen in the training phase.
 
+**If you decide to apply the concepts presented or base on the provided code, please do refer our paper.**
+
+```
+@article{ferriol2022routenet,
+  title={RouteNet-Erlang: A Graph Neural Network for Network Performance Evaluation},
+  author={Ferriol-Galm{\'e}s, Miquel and Rusek, Krzysztof and Su{\'a}rez-Varela, Jos{\'e} and Xiao, Shihan and Cheng, Xiangle and Barlet-Ros, Pere and Cabellos-Aparicio, Albert},
+  journal={arXiv preprint arXiv:2202.13956},
+  year={2022}
+}
+```
+
 ## Quick Start
 ### Project structure
 
