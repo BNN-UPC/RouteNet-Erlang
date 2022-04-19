@@ -9,7 +9,8 @@ can provide accurate estimates in networks not seen in the training phase.
 ```
 @article{ferriol2022routenet,
   title={RouteNet-Erlang: A Graph Neural Network for Network Performance Evaluation},
-  author={Ferriol-Galm{\'e}s, Miquel and Rusek, Krzysztof and Su{\'a}rez-Varela, Jos{\'e} and Xiao, Shihan and Cheng, Xiangle and Barlet-Ros, Pere and Cabellos-Aparicio, Albert},
+  author={Ferriol-Galm{\'e}s, Miquel and Rusek, Krzysztof and Su{\'a}rez-Varela, Jos{\'e} and Xiao, Shihan 
+  and Cheng, Xiangle and Barlet-Ros, Pere and Cabellos-Aparicio, Albert},
   journal={arXiv preprint arXiv:2202.13956},
   year={2022}
 }
