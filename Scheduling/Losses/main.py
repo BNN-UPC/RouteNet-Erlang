@@ -4,7 +4,7 @@ import sys
 sys.path.insert(1, '../')
 
 from read_dataset import input_fn
-from Scheduling.model import GNN_Model
+from model import GNN_Model
 import configparser
 import tensorflow as tf
 
