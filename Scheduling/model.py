@@ -57,7 +57,7 @@ class GNN_Model(tf.keras.Model):
                                   activation=tf.nn.relu),
             tf.keras.layers.Dense(int(self.config['HYPERPARAMETERS']['readout_units']),
                                   activation=tf.nn.relu),
-            tf.keras.layers.Dense(output_units, activation=tf.keras.activations.sigmoid)
+            tf.keras.layers.Dense(output_units)
         ])
 
     @tf.function
