@@ -94,7 +94,7 @@ class GNN_Model(tf.keras.Model):
         # Compute the shape for the  all-zero tensor for link_state
         path_shape = tf.stack([
             n_paths,
-            int(self.config['HYPERPARAMETERS']['link_state_dim']) -
+            int(self.config['HYPERPARAMETERS']['path_state_dim']) -
             2
         ], axis=0)
 
@@ -108,7 +108,7 @@ class GNN_Model(tf.keras.Model):
         # Compute the shape for the  all-zero tensor for path_state
         link_shape = tf.stack([
             n_links,
-            int(self.config['HYPERPARAMETERS']['path_state_dim']) -
+            int(self.config['HYPERPARAMETERS']['link_state_dim']) -
             int(self.config['DATASET']['num_policies']) -
             1
         ], axis=0)
