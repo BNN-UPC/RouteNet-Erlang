@@ -71,6 +71,7 @@ if latest is not None:
                 mre = float(reg[0])
                 if mre <= best_mre:
                     best = f.replace('.index', '')
+                    best = best.replace('.data-00000-of-00001', '')
                     best_mre = mre
 
     print("BEST CHECKOINT FOUND: {}".format(best))
