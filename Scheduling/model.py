@@ -123,7 +123,7 @@ class GNN_Model(tf.keras.Model):
         # Compute the shape for the  all-zero tensor for path_state
         queue_shape = tf.stack([
             n_queues,
-            int(self.config['HYPERPARAMETERS']['path_state_dim']) -
+            int(self.config['HYPERPARAMETERS']['queue_state_dim']) -
             int(self.config['DATASET']['max_num_queues']) -
             1
         ], axis=0)
