@@ -19,7 +19,7 @@ You can download the datasets for this particular experiment here:
 
 Otherwise, you can download the datasets using the following command:
 ```
-wget -O traffic_models.zip https://bnn.upc.edu/download/dataset-v5-traffic-models/)
+wget -O traffic_models.zip https://bnn.upc.edu/download/dataset-v5-traffic-models/
 ```
 
 Note that this dataset is a zip file, so you need to decompress it first. Also, these experiments suppose that the data 
